@@ -7,22 +7,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/andey-robins/deaddrop-go/db"
-	"github.com/andey-robins/deaddrop-go/logger"
-	"github.com/andey-robins/deaddrop-go/session"
+	"github.com/rnisley/PWManager/db"
+	"github.com/rnisley/PWManager/logger"
+	"github.com/rnisley/PWManager/session"
 )
 
 // Create a NewUser as authorized by the user 'user'
 func NewUser(user string) {
-	if !db.NoUsers() && !db.UserExists(user) {
-		logger.Log(6, user)
-		log.Fatalf("User not recognized")
-	}
-
-	err := session.Authenticate(user)
-	if err != nil {
-		logger.Log(7, user)
-		log.Fatalf("Unable to authenticate user")
+	if !db.NoUsers(){
+		logger.Log(//) add appropriate log
+		log.Fatalf("This application is already initialized in this location.")
 	}
 
 	newUser := getNewUsername()
@@ -31,11 +25,11 @@ func NewUser(user string) {
 		log.Fatalf("Unable to get password hash")
 	}
 
-	err = db.SetUserPassHash(newUser, newPassHash)
+	err = db.SetUserPassHash("PWManager", newUser, newPassHash)
 	if err != nil {
 		log.Fatalf("Unable to create new user")
 	}
-	logger.Log(2, user)
+	logger.Log(2, user) // update log call
 }
 
 // getUserMessage prompts the user for the message to send
