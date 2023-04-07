@@ -10,7 +10,7 @@ var (
 	InfoLogger    *log.Logger
 )
 
-func Log(event int, user string) {
+func Log(event int) {
 	file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -22,36 +22,24 @@ func Log(event int, user string) {
 
 	switch event {
 	case 0:
-		InfoLogger.Println(user + " read messages")
+		InfoLogger.Println("App initialized correctly")
 	case 1:
-		InfoLogger.Println("Message sent to " + user)
+		WarningLogger.Println("User attempted to initilize app again")
 	case 2:
-		InfoLogger.Println(user + " created a new user")
+		WarningLogger.Println("Incorrect masterpass given to add new login")
 	case 3:
-		WarningLogger.Println("Wrong password used to read user " + user)
+		InfoLogger.Println("Attempted to make new login for app already in DB")
 	case 4:
-		WarningLogger.Println("Attempted to read messages for user that does not exist :" + user)
+		InfoLogger.Println("Added new login to db")
 	case 5:
-		WarningLogger.Println("Attempted to send message to user that does not exist :" + user)
+		//tbd
 	case 6:
-		WarningLogger.Println("Attempted to create new user using invalid user :" + user)
+		//tbd
 	case 7:
-		WarningLogger.Println(user + " attempted to create new user using invalid password")
+		//tbd
 	case 8:
-		WarningLogger.Println(user + " attempted to send message, but " + user + " is not a valid user")
+		//tbd
 	case 9:
-		WarningLogger.Println(user + " attempted to send message using invalid password")
+		//tbd
 	}
-
-}
-
-func NoAuth(user string) {
-	file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer file.Close()
-
-	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime)
-	WarningLogger.Println("Message for " + user + " could not be authenticated.")
 }

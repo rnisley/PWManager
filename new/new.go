@@ -1,45 +1,93 @@
 package new
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
-	"github.com/rnisley/PWManager/db"
 	"github.com/rnisley/PWManager/logger"
-	"github.com/rnisley/PWManager/session"
+	"github.com/rnisley/PWManager/db"
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/term"
 )
 
-// Create a NewUser as authorized by the user 'user'
-func NewUser(user string) {
-	if !db.NoUsers(){
-		logger.Log(//) add appropriate log
+// Perform first time setup
+func Initialize() {
+	if !NoUsers() {
+		logger.Log(1)
 		log.Fatalf("This application is already initialized in this location.")
 	}
 
-	newUser := getNewUsername()
-	newPassHash, err := session.GetPassword()
+	newPassHash, err := getPassword()
 	if err != nil {
 		log.Fatalf("Unable to get password hash")
 	}
 
-	err = db.SetUserPassHash("PWManager", newUser, newPassHash)
+	err = setUserPassHash(newPassHash)
 	if err != nil {
+		log.Println(err)
 		log.Fatalf("Unable to create new user")
 	}
-	logger.Log(2, user) // update log call
+	logger.Log(0)
 }
 
-// getUserMessage prompts the user for the message to send
-// and returns it
-func getNewUsername() string {
-	fmt.Println("Enter the username for the new user: ")
-	reader := bufio.NewReader(os.Stdin)
-	text, err := reader.ReadString('\n')
+// GetPassword will read in a password from stdin using the terminal
+// no-echo utility ReadPassword. it will then salt and hash it with
+// bcrypt
+func getPassword() (string, error) {
+	pass, err := ReadPass()
 	if err != nil {
-		log.Fatalf("Error reading input: %v", err)
+		return "", err
 	}
-	return strings.Trim(text, "\n\t ")
+
+	return saltAndHash(pass)
+}
+
+// SetUsePassHash will allow for adding a new user to the Users table
+func setUserPassHash(hash string) error {
+	db := db.Connect().Db
+
+	_, err := db.Exec(`
+		INSERT INTO Logins (app, username, passhash)
+		VALUES (
+			"PWManager",
+			"User",
+			?
+		);
+	`, hash)
+	return err
+}
+
+// a nice wrapper to encapsulate the bcrypt generateFromPassword func
+// to make salting and hashing easier
+func saltAndHash(pass []byte) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
+// using the built in password read utility, get a password from stdin
+func ReadPass() ([]byte, error) {
+	fmt.Println("Password: ")
+	pass, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return nil, err
+	}
+	return pass, nil
+}
+
+// Returns true if no users have been registered and false otherwise
+func NoUsers() bool {
+	db := db.Connect().Db
+
+	var usersExist bool
+	err := db.QueryRow("SELECT IIF(COUNT(*),'true', 'false') FROM Logins;").Scan(&usersExist)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+
+	return !usersExist
 }

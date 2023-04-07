@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"github.com/rnisley/PWManager/new"
+	"github.com/rnisley/PWManager/actions"
 )
 
 func main() {
@@ -10,10 +13,10 @@ func main() {
 		fmt.Println("Run with -help for help information")
 	}
 
-	var new, add, get, update, help bool
+	var setup, add, get, update, help bool
 	flag.BoolVar(&help, "help", false, "Get help")
 	flag.BoolVar(&update, "update", false, "run the utility in update mode")
-	flag.BoolVar(&new, "new", false, "first time setup")
+	flag.BoolVar(&setup, "setup", false, "first time setup")
 	flag.BoolVar(&add, "add", false, "run the utility in add mode")
 	flag.BoolVar(&get, "get", false, "run the utility in get mode")
 	flag.Parse()
@@ -27,7 +30,7 @@ func main() {
 		fmt.Println(" Welcome to PasswordManager.")
 		pad()
 		fmt.Println("Args:")
-		fmt.Println("  -new   The verb flag to specify you want to create a new user")
+		fmt.Println("  -setup   The verb flag to specify you want to setup the PWManager")
 		fmt.Println("  -add  The verb flag to specify you want to add a new password")
 		fmt.Println("  -get  The verb flag to specify you want to retreive a password")
 		fmt.Println("  -update  The verb flag to specify you want to update a username and password")
@@ -35,24 +38,24 @@ func main() {
 		return
 	}
 
-	if !add && !update && !new && !get {
+	if !add && !update && !setup && !get {
 		fmt.Println("Please specify a verb for the utility.")
 		fmt.Println("Valid verbs: get, add, update, help")
 		return
 	}
 
-	if (new && (help || add || get || update)) || (add && (new || help || get || update)) || (get && (new || add || help || update)) || (update && (new || add || get || help)) {
+	if (setup && (help || add || get || update)) || (add && (setup || help || get || update)) || (get && (setup || add || help || update)) || (update && (setup || add || get || help)) {
 		fmt.Println("Please specify only one verb")
 		return
 	}
 
 	if get {
-		read.getPW()
+		actions.GetPW()
 	} else if add {
-		send.addPW()
-	} else if new {
-		new.initialize()
+		actions.AddPW()
+	} else if setup {
+		new.Initialize()
 	} else if update {
-		update.updatePW()
+		actions.UpdatePW()
 	}
 }
