@@ -1,0 +1,6 @@
+CREATE TABLE Logins (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    app TEXT NOT NULL,
+    username TEXT NOT NULL,
+    passhash BLOB
+);
