@@ -11,7 +11,7 @@ This is a part of the University of Wyoming's Secure Software Design Course (Spr
 
 ## Usage
 
-`go main.go` Is used to launch the program, but must be followed by exactly one of the following tags.
+`go run main.go` Is used to launch the program, but must be followed by exactly one of the following tags.
 
 `-setup`   Specifies you want to setup the PWManager. This can only be run once in any given installation location. This will prompt you to set the master password.
 
@@ -24,3 +24,7 @@ This is a part of the University of Wyoming's Secure Software Design Course (Spr
 ## Database
 
 Data gets stored into the local database file dd.db. Delete this file if you don't set up a user properly on the first go or if you wish to purge all saved logins.
+
+## Documentation
+
+See `Project Design Documentation.pdf` for full design specifications.
