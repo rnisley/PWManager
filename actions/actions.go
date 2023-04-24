@@ -26,13 +26,13 @@ func AddPW() {
 	var masterPass []byte
 	err := authenticate(&masterPass)
 	if err != nil {
-		logger.Log(2)
+		logger.Log(1, "Incorrect masterpass given to add new login")
 		log.Fatalf("Unable to authenticate user")
 	}
 
 	app := getAppName()
 	if LoginExists(app) {
-		logger.Log(3)
+		logger.Log(0, "Attempted to make new login for app already in DB")
 		log.Fatalf("App login already exists. Try -update")
 	}
 
@@ -40,7 +40,7 @@ func AddPW() {
 	user := encrypt(getUserName(app), MPString)
 	password := encrypt(getAppPW(app), MPString)
 	saveLogin(app, user, password)
-	logger.Log(4)
+	logger.Log(0,"Added new login to db")
 }
 
 // GetPW retrieves and decrypts the users password credentials and prints to the console.
@@ -48,7 +48,7 @@ func GetPW() {
 	var masterPass []byte
 	err := authenticate(&masterPass)
 	if err != nil {
-		logger.Log(5)
+		logger.Log(1, "Incorrect masterpass given to password lookup")
 		log.Fatalf("Unable to authenticate user")
 	}
 
@@ -77,9 +77,10 @@ func GetPW() {
 		fmt.Println("The password for " + app + " is:")
 		fmt.Println(passhash)
 	} else {
+		logger.Log(0, "User attempted to lookup an app that is not in the database")
 		log.Fatalf("Application name is not found in database")
 	}
-	logger.Log(6)
+	logger.Log(0, "User successfully looked up login credentials")
 }
 
 // UpdatePW takes an app name and then
@@ -88,7 +89,7 @@ func UpdatePW() {
 	var masterPass []byte
 	err := authenticate(&masterPass)
 	if err != nil {
-		logger.Log(7)
+		logger.Log(1, "Incorrect masterpass given to update login credentials")
 		log.Fatalf("Unable to authenticate user")
 	}
 
@@ -100,9 +101,10 @@ func UpdatePW() {
 		updateLogin(app, user, password)
 
 	} else {
+		logger.Log(0, "User attempted to update an app that is not in the database")
 		log.Fatalf("Application name is not found in database")
 	}
-	logger.Log(8)
+	logger.Log(0, "User successfully updated login credentials")
 }
 
 // getAppName prompts the user for the app name or web address to save

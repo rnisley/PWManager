@@ -14,7 +14,7 @@ import (
 // Perform first time setup
 func Initialize() {
 	if !NoUsers() {
-		logger.Log(1)
+		logger.Log(1, "User attempted to initilize app again")
 		log.Fatalf("This application is already initialized in this location.")
 	}
 
@@ -28,7 +28,7 @@ func Initialize() {
 		log.Println(err)
 		log.Fatalf("Unable to create new user")
 	}
-	logger.Log(0)
+	logger.Log(0, "App initialized correctly")
 }
 
 // GetPassword will read in a password from stdin using the terminal
