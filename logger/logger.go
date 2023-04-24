@@ -32,14 +32,12 @@ func Log(event int) {
 	case 4:
 		InfoLogger.Println("Added new login to db")
 	case 5:
-		//tbd
+		WarningLogger.Println("Incorrect masterpass given to password lookup")
 	case 6:
-		//tbd
+		InfoLogger.Println("User successfully looked up login credentials")
 	case 7:
-		//tbd
+		WarningLogger.Println("Incorrect masterpass given to update login credentials")
 	case 8:
-		//tbd
-	case 9:
-		//tbd
+		InfoLogger.Println("User successfully updated login credentials")
 	}
 }

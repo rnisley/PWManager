@@ -1,23 +1,22 @@
 package actions
 
-import(
+import (
+	"bufio"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
-	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
-	"database/sql"
-	"io"
-	
 
+	"github.com/rnisley/PWManager/db"
 	"github.com/rnisley/PWManager/logger"
 	"github.com/rnisley/PWManager/new"
-	"github.com/rnisley/PWManager/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -46,12 +45,65 @@ func AddPW() {
 
 // Stub for GetPW
 func GetPW() {
-	log.Fatalf("Not implemented yet.")
+	// log.Fatalf("Not implemented yet.")
+	var masterPass []byte
+	err := authenticate(&masterPass)
+	if err != nil {
+		logger.Log(5)
+		log.Fatalf("Unable to authenticate user")
+	}
+
+	app := getAppName()
+	if LoginExists(app) {
+		db := db.Connect().Db
+
+		var username string
+		var passhash string
+		if err := db.QueryRow("SELECT username, passhash FROM Logins WHERE app=?;", app).Scan(&username, &passhash); err != nil {
+			log.Println(err)
+			log.Fatalf("An unexpected error occured checking the database")
+		}
+		var str string
+		str = string(masterPass)
+		var userBytes []byte
+		userBytes = []byte(username)
+		username = decrypt(userBytes, str)
+
+		var passBytes []byte
+		passBytes = []byte(passhash)
+		passhash = decrypt(passBytes, str)
+
+		fmt.Println("The username for " + app + " is:")
+		fmt.Println(username)
+		fmt.Println("The password for " + app + " is:")
+		fmt.Println(passhash)
+	} else {
+		log.Fatalf("Application name is not found in database")
+	}
+	logger.Log(6)
 }
 
 // Stub for UpdatePW
 func UpdatePW() {
-	log.Fatalf("Not implemented yet.")
+	// log.Fatalf("Not implemented yet.")
+	var masterPass []byte
+	err := authenticate(&masterPass)
+	if err != nil {
+		logger.Log(7)
+		log.Fatalf("Unable to authenticate user")
+	}
+
+	app := getAppName()
+	if LoginExists(app) {
+		MPString := string(masterPass)
+		user := encrypt(getUserName(app), MPString)
+		password := encrypt(getAppPW(app), MPString)
+		updateLogin(app, user, password)
+
+	} else {
+		log.Fatalf("Application name is not found in database")
+	}
+	logger.Log(8)
 }
 
 // getAppName prompts the user for the app name or web address to save
@@ -169,6 +221,19 @@ func saveLogin(app string, user []byte, password []byte) {
 	`, app, user, password)
 }
 
+func updateLogin(app string, user []byte, password []byte) {
+	database := db.Connect().Db
+
+	database.Exec(`
+		UPDATE Logins
+		SET username = ?, 
+		passhash = ?
+		WHERE 
+			app = ?
+		;
+	`, user, password, app)
+}
+
 //AES Encryption Code Below
 
 //Encrypts data using AES
@@ -187,7 +252,7 @@ func encrypt(data []byte, passphrase string) []byte {
 }
 
 //Decrypts data using AES
-func decrypt(data []byte, passphrase string) []byte {
+func decrypt(data []byte, passphrase string) string {
 	key := []byte(createHash(passphrase))
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -203,7 +268,7 @@ func decrypt(data []byte, passphrase string) []byte {
 	if err != nil {
 		panic(err.Error())
 	}
-	return plaintext
+	return string(plaintext)
 }
 
 //Makes hash of string to use for AES encryption
