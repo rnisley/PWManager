@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/rnisley/PWManager/logger"
 	"github.com/rnisley/PWManager/db"
+	"github.com/rnisley/PWManager/logger"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 )
@@ -43,7 +43,8 @@ func getPassword() (string, error) {
 	return saltAndHash(pass)
 }
 
-// SetUsePassHash will allow for adding a new user to the Users table
+// SetUserPassHash will insert the master password hash
+// into the logins table
 func setUserPassHash(hash string) error {
 	db := db.Connect().Db
 
@@ -78,7 +79,8 @@ func ReadPass() ([]byte, error) {
 	return pass, nil
 }
 
-// Returns true if no users have been registered and false otherwise
+// Returns true if no master password has been set
+// otherwise returns false
 func NoUsers() bool {
 	db := db.Connect().Db
 

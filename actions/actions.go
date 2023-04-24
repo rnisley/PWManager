@@ -20,8 +20,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// SendMessage takes a destination username and will
-// prompt the user for a message to send to that user
+// AddPW takes an app name and then
+// prompt the user for a new username and password combo.
 func AddPW() {
 	var masterPass []byte
 	err := authenticate(&masterPass)
@@ -43,9 +43,8 @@ func AddPW() {
 	logger.Log(4)
 }
 
-// Stub for GetPW
+// GetPW retrieves and decrypts the users password credentials and prints to the console.
 func GetPW() {
-	// log.Fatalf("Not implemented yet.")
 	var masterPass []byte
 	err := authenticate(&masterPass)
 	if err != nil {
@@ -83,9 +82,9 @@ func GetPW() {
 	logger.Log(6)
 }
 
-// Stub for UpdatePW
+// UpdatePW takes an app name and then
+// prompt the user for a new username and password combo.
 func UpdatePW() {
-	// log.Fatalf("Not implemented yet.")
 	var masterPass []byte
 	err := authenticate(&masterPass)
 	if err != nil {
@@ -221,6 +220,8 @@ func saveLogin(app string, user []byte, password []byte) {
 	`, app, user, password)
 }
 
+// updateLogin will process the transaction to update an existing login
+// in the database
 func updateLogin(app string, user []byte, password []byte) {
 	database := db.Connect().Db
 
