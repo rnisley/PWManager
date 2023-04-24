@@ -17,4 +17,4 @@ Then run `go run main.go -new` and you will be prompted to create the master pas
 
 ## Database
 
-Data gets stored into the local database file dd.db. This file will not by synched to git repos. Delete this file if you don't set up a user properly on the first go or if you wish to purge all saved logins.
+Data gets stored into the local database file dd.db. Delete this file if you don't set up a user properly on the first go or if you wish to purge all saved logins.
